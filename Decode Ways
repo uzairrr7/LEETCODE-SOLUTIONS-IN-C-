@@ -1,0 +1,28 @@
+// LeetCode-style C solution for 91. Decode Ways
+#include <stdlib.h>
+#include <string.h>
+
+int numDecodings(char * s){
+    int n = strlen(s);
+    if (n == 0) return 0;
+    if (s[0] == '0') return 0;
+    // Use two variables instead of full array
+    int prev = 1; // dp[0]
+    int curr = 1; // dp[1] initially (for first char) -> because s[0] != '0'
+    for (int i = 1; i < n; ++i) {
+        int temp = 0;
+        if (s[i] != '0') temp += curr; // single-digit decode valid
+        int two = (s[i-1]-'0')*10 + (s[i]-'0');
+        if (two >= 10 && two <= 26) {
+            temp += prev; // two-digit decode valid
+        }
+        // shift
+        prev = curr;
+        curr = temp;
+        if (curr == 0) {
+            // no valid decoding
+            return 0;
+        }
+    }
+    return curr;
+}
