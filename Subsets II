@@ -1,0 +1,53 @@
+// LeetCode-style C solution for 90. Subsets II
+#include <stdlib.h>
+#include <string.h>
+
+int cmp_int(const void *a, const void *b) {
+    return (*(int*)a) - (*(int*)b);
+}
+
+void addResult(int ***res, int **colSizes, int *returnSize, int *path, int pathLen) {
+    // expand arrays
+    *res = realloc(*res, ((*returnSize) + 1) * sizeof(int*));
+    *colSizes = realloc(*colSizes, ((*returnSize) + 1) * sizeof(int));
+    // copy current path
+    int *arr = malloc(pathLen * sizeof(int));
+    for (int i=0;i<pathLen;i++) arr[i]=path[i];
+    (*res)[*returnSize] = arr;
+    (*colSizes)[*returnSize] = pathLen;
+    (*returnSize)++;
+}
+
+void backtrack90(int *nums, int numsSize, int start, int *path, int pathLen,
+                 int ***res, int **colSizes, int *returnSize) {
+    addResult(res, colSizes, returnSize, path, pathLen);
+    for (int i = start; i < numsSize; ++i) {
+        if (i > start && nums[i] == nums[i-1]) continue; // skip duplicate at same level
+        path[pathLen] = nums[i];
+        backtrack90(nums, numsSize, i+1, path, pathLen+1, res, colSizes, returnSize);
+    }
+}
+
+/*
+Return: int** (array of arrays), set *returnSize and *returnColumnSizes.
+*/
+int** subsetsWithDup(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
+    qsort(nums, numsSize, sizeof(int), cmp_int);
+    int **res = NULL;
+    int *colSizes = NULL;
+    *returnSize = 0;
+    if (numsSize == 0) {
+        // empty set => one subset: []
+        res = malloc(sizeof(int*));
+        res[0] = NULL;
+        *returnColumnSizes = malloc(sizeof(int));
+        (*returnColumnSizes)[0] = 0;
+        *returnSize = 1;
+        return res;
+    }
+    int *path = malloc(numsSize * sizeof(int));
+    backtrack90(nums, numsSize, 0, path, 0, &res, &colSizes, returnSize);
+    free(path);
+    *returnColumnSizes = colSizes;
+    return res;
+}
